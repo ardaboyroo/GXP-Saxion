@@ -17,8 +17,9 @@ public class MyGame : Game
     const int level2Distance = 300;
     const int level3Distance = 500;
     
-    public MyGame() : base(1200, 800, false)     // Create a window that's 800x600 and NOT fullscreen, VSync = false
+    public MyGame() : base(1200, 800, false, false)     // Create a window that's 800x600 and NOT fullscreen, VSync = false
     {
+        targetFps = 120;
         //// Draw some things on a canvas:
         //EasyDraw canvas = new EasyDraw(800, 600);
         //canvas.Clear(Color.MediumPurple);
@@ -32,10 +33,10 @@ public class MyGame : Game
         // Add the canvas to the engine to display it:
         //AddChild(canvas);
         Console.WriteLine("MyGame initialized");
-        myPlayer = new Player("circle.png", 1, 1);
-        lvl1 = new Sprite("circle.png");
-        lvl2 = new Sprite("circle.png");
-        lvl3 = new Sprite("circle.png");
+        myPlayer = new Player("Assets/circle.png", 1, 1);
+        lvl1 = new Sprite("Assets/circle.png");
+        lvl2 = new Sprite("Assets/circle.png");
+        lvl3 = new Sprite("Assets/circle.png");
         AddChild(lvl1);
         AddChild(lvl2);
         AddChild(lvl3);
