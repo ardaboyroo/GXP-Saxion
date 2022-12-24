@@ -8,17 +8,26 @@ namespace GXPEngine
 {
     public class Player : AnimationSprite
     {
+        const int TOTALTIME = 400;          // Time it takes for the player to completely stand still in milliseconds
+        const float PERCENTAGE = 0.50f;          // What percentage of the given distance is used as slow down distance
+        int time = TOTALTIME;
+        float oldSpeed;
+
         private Vector2 pivot;
         private Vector2 Velocity;
         private float playerSpeed;
-
-        const int TOTALTIME = 400;          // Time it takes for the player to completely stand still in milliseconds
-        const int PERCENTAGE = 75;      // What percentage of the total distance is traveled at a constant speed
-        int time = TOTALTIME;
-
-        bool debounce = false;
         int givenDistance;
-        float tets = 0.0f;
+        bool debounce = false;
+
+        /* 
+        
+        TOTALTIME = 400
+
+        PERCENTAGE = 75%
+
+        givenDistance = 500
+
+        */
 
         public void CalculatePivot()
         {
@@ -73,9 +82,10 @@ namespace GXPEngine
             // Calculate angle
             float angle = Mathf.Atan2(C.x, C.y);
 
-            // Flip angle while staying between 0-360 degrees
             // RAngle means reversed angle
             float RAngle = RadiansToDegrees(angle);
+
+            // Flip angle while staying between 0-360 degrees
             if (RAngle + 180 < 360) { RAngle += 180; }
             else { RAngle -= 180; }
 
@@ -104,30 +114,32 @@ namespace GXPEngine
         {
             CalculatePivot();       // Calculate the center coordinates each frame
 
-
             if (debounce)
             {
                 // Calculate the constant player speed for "TOTALTIME" amount of milliseconds
                 if (time >= 0)
                 {
                     time -= Time.deltaTime;
-                    playerSpeed = (float)givenDistance * (float)Time.deltaTime / (float)TOTALTIME;
-                    tets = playerSpeed;
+                    playerSpeed = (float)givenDistance * ((float)Time.deltaTime / (float)TOTALTIME);
+                    oldSpeed = playerSpeed;
                 }
+
                 // Decrease the player speed until it is 0
                 if (playerSpeed >= 0 && time < 0)
                 {
-                    playerSpeed -= tets * (float)(5.0 / 100.0);
+                    playerSpeed -= oldSpeed * (5.0f / 100.0f);
                 }
+
                 // Reset the time and debounce when the player stands still
                 if (playerSpeed < 0 && time < 0)
                 {
+                    //slowDownTime = TOTALTIME * PERCENTAGE;
                     time = TOTALTIME;
                     debounce = false;
                     playerSpeed = 0;    // To make sure that playerSpeed isn't less than 0
                 }
             }
-            //Console.WriteLine("playerSpeed: {0} \ntets: {1} \ndecrease: {2}", playerSpeed, tets, tets * (float)(5.0/100.0));
+            Console.WriteLine("playerSpeed: {0} \ttime: {1} \tdecrease: {2}", playerSpeed, time, oldSpeed * (5.0f / 100.0f));
 
             // Apply the directional speed
             x += Velocity.x * playerSpeed;

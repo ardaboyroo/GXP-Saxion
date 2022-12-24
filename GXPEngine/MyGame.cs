@@ -19,19 +19,21 @@ public class MyGame : Game
     
     public MyGame() : base(1200, 800, false, false)     // Create a window that's 800x600 and NOT fullscreen, VSync = false
     {
-        targetFps = 120;
-        //// Draw some things on a canvas:
-        //EasyDraw canvas = new EasyDraw(800, 600);
-        //canvas.Clear(Color.MediumPurple);
-        //canvas.Fill(Color.Yellow);
-        //canvas.Ellipse(width / 2, height / 2, 200, 200);
-        //canvas.Fill(50);
-        //canvas.TextSize(32);
-        //canvas.TextAlign(CenterMode.Center, CenterMode.Center);
-        //canvas.Text("Welcome!", width / 2, height / 2);
+        targetFps = 1000;        // Framerate
+        /*
+        // Draw some things on a canvas:
+        EasyDraw canvas = new EasyDraw(800, 600);
+        canvas.Clear(Color.MediumPurple);
+        canvas.Fill(Color.Yellow);
+        canvas.Ellipse(width / 2, height / 2, 200, 200);
+        canvas.Fill(50);
+        canvas.TextSize(32);
+        canvas.TextAlign(CenterMode.Center, CenterMode.Center);
+        canvas.Text("Welcome!", width / 2, height / 2);
 
         // Add the canvas to the engine to display it:
-        //AddChild(canvas);
+        AddChild(canvas); 
+        */
         Console.WriteLine("MyGame initialized");
         myPlayer = new Player("Assets/circle.png", 1, 1);
         lvl1 = new Sprite("Assets/circle.png");
@@ -87,7 +89,7 @@ public class MyGame : Game
 
 
         MoveMyPlayer();
-        Console.WriteLine(currentFps);
+        //Console.WriteLine("FPS: {0} Mill: {1}", currentFps, Time.deltaTime);
     }
 
     static void Main()                          // Main() is the first method that's called when the program is run
