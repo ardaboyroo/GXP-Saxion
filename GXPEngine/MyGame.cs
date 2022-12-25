@@ -67,7 +67,7 @@ public class MyGame : Game
         if (Input.GetMouseButtonDown(0))
         {
             myPlayer.CalculateDirection(mouseX, mouseY);
-            myPlayer.CalculateSpeed(450);
+            myPlayer.CalculateSpeed(500);
         }
     }
 
