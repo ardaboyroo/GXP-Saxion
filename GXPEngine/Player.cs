@@ -9,8 +9,9 @@ namespace GXPEngine
     public class Player : AnimationSprite
     {
         const int TOTALTIME = 400;          // Time it takes for the player to completely stand still in milliseconds
-        const float PERCENTAGE = 0.50f;          // What percentage of the given distance is used as slow down distance
+        const float PERCENTAGE = 0.99f;          // What percentage of the given distance is used as slow down distance
         int time = TOTALTIME;
+        float slowDownTime = (float)TOTALTIME * PERCENTAGE;
         float oldSpeed;
 
         private Vector2 pivot;
@@ -108,6 +109,8 @@ namespace GXPEngine
             this.givenDistance = givenDistance;
             // If the player is slowing down or standing still reset the time on click
             if (time <= 0) { time = TOTALTIME; }
+            slowDownTime = (float)TOTALTIME * PERCENTAGE;
+
         }
 
         public void Update()
@@ -121,25 +124,29 @@ namespace GXPEngine
                 {
                     time -= Time.deltaTime;
                     playerSpeed = (float)givenDistance * ((float)Time.deltaTime / (float)TOTALTIME);
-                    oldSpeed = playerSpeed;
+                    oldSpeed = playerSpeed;     // Use the last calculated speed for slowDown
                 }
 
                 // Decrease the player speed until it is 0
-                if (playerSpeed >= 0 && time < 0)
+                if (playerSpeed > 0 && time < 0 && slowDownTime >= 0)
                 {
-                    playerSpeed -= oldSpeed * (5.0f / 100.0f);
+                    //playerSpeed -= oldSpeed * (5.0f / 100.0f);      // Not with deltaTime
+                    slowDownTime -= Time.deltaTime;
+                    float decrease = oldSpeed / ((float)TOTALTIME * PERCENTAGE) * Time.deltaTime;
+                    playerSpeed -= decrease;
                 }
 
                 // Reset the time and debounce when the player stands still
-                if (playerSpeed < 0 && time < 0)
+                // slowDownTime < 1 because floats aren't exact and can leave very small numbers
+                if (playerSpeed <= 0 && time < 0 && slowDownTime < 1)
                 {
-                    //slowDownTime = TOTALTIME * PERCENTAGE;
-                    time = TOTALTIME;
                     debounce = false;
-                    playerSpeed = 0;    // To make sure that playerSpeed isn't less than 0
+                    playerSpeed = 0;    // To make sure that playerSpeed doesn't stay less than 0
+                    time = TOTALTIME;
+                    slowDownTime = (float)TOTALTIME * PERCENTAGE;
                 }
             }
-            Console.WriteLine("playerSpeed: {0} \ttime: {1} \tdecrease: {2}", playerSpeed, time, oldSpeed * (5.0f / 100.0f));
+            Console.WriteLine("playerSpeed: {0} \ttime: {1} \tslowDownTime: {2} \tdecrease: {3} \tdeltaTime: {4}", playerSpeed, time, slowDownTime, (oldSpeed * PERCENTAGE) / ((float)TOTALTIME * PERCENTAGE) * Time.deltaTime, Time.deltaTime);
 
             // Apply the directional speed
             x += Velocity.x * playerSpeed;

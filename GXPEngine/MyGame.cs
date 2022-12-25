@@ -19,7 +19,7 @@ public class MyGame : Game
     
     public MyGame() : base(1200, 800, false, false)     // Create a window that's 800x600 and NOT fullscreen, VSync = false
     {
-        targetFps = 1000;        // Framerate
+        targetFps = 1000;       // Framerate
         /*
         // Draw some things on a canvas:
         EasyDraw canvas = new EasyDraw(800, 600);
@@ -67,7 +67,7 @@ public class MyGame : Game
         if (Input.GetMouseButtonDown(0))
         {
             myPlayer.CalculateDirection(mouseX, mouseY);
-            myPlayer.CalculateSpeed(150);
+            myPlayer.CalculateSpeed(450);
         }
     }
 
@@ -108,7 +108,7 @@ public class MyGame : Game
         StreamReader reader = new StreamReader("myFile.txt");
         string input2 = reader.ReadLine();
         int readNum = int.Parse(input2); // may give exception
-        Console.WriteLine("Ï read this number: "+readNum);
+        Console.WriteLine("I read this number: "+readNum);
         Console.ReadKey();
         */
 
