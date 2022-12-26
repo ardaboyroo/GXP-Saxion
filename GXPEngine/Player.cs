@@ -8,31 +8,24 @@ namespace GXPEngine
 {
     public class Player : AnimationSprite
     {
-        const int TOTALTIME = 400;          // Time it takes for the player to completely stand still in milliseconds
-        const float PERCENTAGE = 0.99f;          // What percentage of the given distance is used as slow down distance
-        int time = TOTALTIME;
-        float slowDownTime = (float)TOTALTIME * PERCENTAGE;
-        float oldSpeed;
+        // You can tweak these
+        const int TOTALTIME = 200;          // Time it takes for the player to start slowing down in milliseconds
+        const float PERCENTAGE = 2.0f;      // What percentage of the given distance is used as slow down distance
 
+        // Don't change these
         private Vector2 pivot;
         private Vector2 Velocity;
+        private int givenDistance;
+        private int time = TOTALTIME;
+        private float slowDownTime = (float)TOTALTIME * PERCENTAGE;
         private float playerSpeed;
-        int givenDistance;
-        bool debounce = false;
-
-        /* 
-        
-        TOTALTIME = 400
-
-        PERCENTAGE = 75%
-
-        givenDistance = 500
-
-        */
+        private float oldSpeed;
+        private bool debounce = false;
+        public bool isMoving = false;
 
         public void CalculatePivot()
         {
-            // Calculate center coordinates
+            // Calculate and set center coordinates
             pivot = new Vector2(x + width / 2, y + height / 2);
         }
 
@@ -70,7 +63,7 @@ namespace GXPEngine
             return angle * Mathf.PI / 180.0f - Mathf.PI / 2;
         }
 
-        public void CalculateDirection(int mouseX, int mouseY)      // Call this when you want to change direction
+        public void CalculateVelocity(int mouseX, int mouseY, int givenDistance)      // Call this when you want to change direction and speed
         {
             Vector2 C = new Vector2(0, 0);
 
@@ -96,6 +89,14 @@ namespace GXPEngine
             // Calculate velocity from angle
             Velocity = new Vector2(Mathf.Cos(DegreesToRadians(RAngle)), Mathf.Sin(DegreesToRadians(RAngle)));
 
+
+            // This is for the constant speed and speed decrease calculation
+            debounce = true;
+            this.givenDistance = givenDistance;
+                // If the player is slowing down or standing still reset the time on click
+            if (time <= 0) { time = TOTALTIME; }
+            slowDownTime = (float)TOTALTIME * PERCENTAGE;
+
             /* 
              Sources for angle calculation:
              * https://gamedev.stackexchange.com/questions/80277/how-to-find-point-on-a-circle-thats-opposite-another-point
@@ -103,25 +104,18 @@ namespace GXPEngine
             */
         }
 
-        public void CalculateSpeed(int givenDistance)
-        {
-            debounce = true;
-            this.givenDistance = givenDistance;
-            // If the player is slowing down or standing still reset the time on click
-            if (time <= 0) { time = TOTALTIME; }
-            slowDownTime = (float)TOTALTIME * PERCENTAGE;
-
-        }
-
         public void Update()
         {
             CalculatePivot();       // Calculate the center coordinates each frame
 
+
+            // This is for calculating the constant speed and decreasing speed each frame with deltaTime
             if (debounce)
             {
                 // Calculate the constant player speed for "TOTALTIME" amount of milliseconds
                 if (time >= 0)
                 {
+                    isMoving = true;
                     time -= Time.deltaTime;
                     playerSpeed = (float)givenDistance * ((float)Time.deltaTime / (float)TOTALTIME);
                     oldSpeed = playerSpeed;     // Use the last calculated speed for slowDown
@@ -130,7 +124,7 @@ namespace GXPEngine
                 // Decrease the player speed until it is 0
                 if (playerSpeed > 0 && time < 0 && slowDownTime >= 0)
                 {
-                    //playerSpeed -= oldSpeed * (5.0f / 100.0f);      // Not with deltaTime
+                    isMoving = false;
                     slowDownTime -= Time.deltaTime;
                     float decrease = oldSpeed / ((float)TOTALTIME * PERCENTAGE) * Time.deltaTime;
                     playerSpeed -= decrease;
@@ -146,7 +140,8 @@ namespace GXPEngine
                     slowDownTime = (float)TOTALTIME * PERCENTAGE;
                 }
             }
-            Console.WriteLine("playerSpeed: {0} \ttime: {1} \tslowDownTime: {2} \tdecrease: {3} \tdeltaTime: {4}", playerSpeed, time, slowDownTime, (oldSpeed * PERCENTAGE) / ((float)TOTALTIME * PERCENTAGE) * Time.deltaTime, Time.deltaTime);
+
+            //Console.WriteLine("playerSpeed: {0} \ttime: {1} \tslowDownTime: {2} \tdecrease: {3} \tdeltaTime: {4}", playerSpeed, time, slowDownTime, (oldSpeed * PERCENTAGE) / ((float)TOTALTIME * PERCENTAGE) * Time.deltaTime, Time.deltaTime);
 
             // Apply the directional speed
             x += Velocity.x * playerSpeed;

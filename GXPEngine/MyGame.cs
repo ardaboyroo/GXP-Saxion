@@ -16,7 +16,7 @@ public class MyGame : Game
     const int level1Distance = 150;
     const int level2Distance = 300;
     const int level3Distance = 500;
-    
+
     public MyGame() : base(1200, 800, false, false)     // Create a window that's 800x600 and NOT fullscreen, VSync = false
     {
         targetFps = 1000;       // Framerate
@@ -66,8 +66,10 @@ public class MyGame : Game
         }
         if (Input.GetMouseButtonDown(0))
         {
-            myPlayer.CalculateDirection(mouseX, mouseY);
-            myPlayer.CalculateSpeed(500);
+            if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
+            {
+                myPlayer.CalculateVelocity(mouseX, mouseY, 500);
+            }
         }
     }
 
