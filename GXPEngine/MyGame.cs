@@ -19,7 +19,7 @@ public class MyGame : Game
 
     public MyGame() : base(1200, 800, false, false)     // Create a window that's 800x600 and NOT fullscreen, VSync = false
     {
-        targetFps = 1000;       // Framerate
+        targetFps = 60;       // Framerate
         /*
         // Draw some things on a canvas:
         EasyDraw canvas = new EasyDraw(800, 600);
@@ -36,14 +36,14 @@ public class MyGame : Game
         */
         Console.WriteLine("MyGame initialized");
         myPlayer = new Player("Assets/circle.png", 1, 1);
+        AddChild(myPlayer);
+
         lvl1 = new Sprite("Assets/circle.png");
         lvl2 = new Sprite("Assets/circle.png");
         lvl3 = new Sprite("Assets/circle.png");
         AddChild(lvl1);
         AddChild(lvl2);
         AddChild(lvl3);
-
-        AddChild(myPlayer);
     }
 
     void MoveMyPlayer()
@@ -68,7 +68,8 @@ public class MyGame : Game
         {
             if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
             {
-                myPlayer.CalculateVelocity(mouseX, mouseY, 500);
+                myPlayer.CalculateVelocity(mouseX, mouseY, 100);
+                new Bullet(myPlayer.pivot.x, myPlayer.pivot.y);
             }
         }
     }
@@ -91,7 +92,15 @@ public class MyGame : Game
 
 
         MoveMyPlayer();
-        //Console.WriteLine("FPS: {0} Mill: {1}", currentFps, Time.deltaTime);
+
+        foreach (Bullet i in Bullet.bulletList)
+        {
+            if (!HasChild(i))
+            {
+                AddChild(i);
+                Console.WriteLine("Added child");
+            }
+        }
     }
 
     static void Main()                          // Main() is the first method that's called when the program is run
@@ -113,7 +122,6 @@ public class MyGame : Game
         Console.WriteLine("I read this number: "+readNum);
         Console.ReadKey();
         */
-
         new MyGame().Start();                   // Create a "MyGame" and start it
     }
 }
