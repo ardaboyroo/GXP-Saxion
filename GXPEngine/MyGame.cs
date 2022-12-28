@@ -68,8 +68,8 @@ public class MyGame : Game
         {
             if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
             {
-                myPlayer.CalculateVelocity(mouseX, mouseY, 100);
-                new Bullet(myPlayer.pivot.x, myPlayer.pivot.y);
+                myPlayer.CalculateVelocity(mouseX, mouseY, 150);
+                new Bullet(myPlayer.pivot, mouseX, mouseY, 1000);
             }
         }
     }
@@ -98,7 +98,6 @@ public class MyGame : Game
             if (!HasChild(i))
             {
                 AddChild(i);
-                Console.WriteLine("Added child");
             }
         }
     }

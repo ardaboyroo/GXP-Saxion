@@ -42,62 +42,14 @@ namespace GXPEngine
             y += stepY;
         }
 
-        protected float RadiansToDegrees(float angle)
+        public void CalculateVelocity(float x, float y, int givenDistance)      // Call this when you want to change direction and speed
         {
-            // Turn radians into degrees
-            angle *= 180 / Mathf.PI;
-
-            // Map degrees from -180,180 to 0,360
-            if (angle > 90) { angle = 450 - angle; }
-            else { angle = 90 - angle; }
-
-            // Rotate angle 90 degrees clockwise
-            angle -= 90;
-            if (angle < 0) { angle = 360 + angle; }
-
-            return angle;
-        }
-
-        protected float DegreesToRadians(float angle)
-        {
-            return angle * Mathf.PI / 180.0f - Mathf.PI / 2;
-        }
-
-        protected float CalculateAngle(int x, int y)
-        {
-            Vector2 C = new Vector2(0, 0);
-
-            float deltaX = pivot.x - x;
-            float deltaY = pivot.y - y;
-            float dist = Mathf.Sqrt(deltaX * deltaX + deltaY * deltaY);     // Pythagoras theorem
-            C.x = deltaX / dist;
-            C.y = deltaY / dist;
-
-            // Calculate angle
-            float angle = Mathf.Atan2(C.x, C.y);
-
-            return angle;
-        }
-
-        public void CalculateVelocity(int mouseX, int mouseY, int givenDistance)      // Call this when you want to change direction and speed
-        {
-            float angle = CalculateAngle(mouseX, mouseY);
-
-            // RAngle means reversed angle
-            float RAngle = RadiansToDegrees(angle);
-
-            Console.WriteLine("1: {0}", RAngle);
-            // Flip angle while staying between 0-360 degrees
-            if (RAngle + 180 < 360) { RAngle += 180; }
-            else { RAngle -= 180; }
-            Console.WriteLine("2: {0}", RAngle);
-
-
-            // if mouse is exactly on the same pixel as the center make the   RAngle = 0   instead of   RAngle = NaN
-            if (float.NaN.Equals(RAngle)) { RAngle = 0; }
+            float angle = Mathf.CalculateAngle(pivot.x, pivot.y, x, y);
+            angle = Mathf.ReverseAngle(angle);
 
             // Calculate velocity from angle
-            Velocity = new Vector2(Mathf.Cos(DegreesToRadians(RAngle)), Mathf.Sin(DegreesToRadians(RAngle)));
+            Velocity = new Vector2(Mathf.Cos(angle), Mathf.Sin(-angle));
+
 
 
             // This is for the constant speed and speed decrease calculation
@@ -106,12 +58,6 @@ namespace GXPEngine
             // If the player is slowing down or standing still reset the time on click
             if (time <= 0) { time = TOTALTIME; }
             slowDownTime = (float)TOTALTIME * PERCENTAGE;
-
-            /* 
-             Sources for angle calculation:
-             * https://gamedev.stackexchange.com/questions/80277/how-to-find-point-on-a-circle-thats-opposite-another-point
-             * https://stackoverflow.com/questions/1311049/how-to-map-atan2-to-degrees-0-360
-            */
         }
 
         private void CalculateSpeed()
@@ -129,7 +75,7 @@ namespace GXPEngine
                 }
 
                 // Decrease the player speed until it is 0
-                if (playerSpeed > 0 && time < 0 && slowDownTime >= 0)
+                else if (playerSpeed > 0 && time < 0 && slowDownTime >= 0)
                 {
                     isMoving = false;
                     slowDownTime -= Time.deltaTime;
@@ -139,7 +85,7 @@ namespace GXPEngine
 
                 // Reset the time and debounce when the player stands still
                 // slowDownTime < 1 because floats aren't exact and can leave very small numbers
-                if (playerSpeed <= 0 && time < 0 && slowDownTime < 1)
+                else if (playerSpeed <= 0 && time < 0 && slowDownTime < 1)
                 {
                     debounce = false;
                     playerSpeed = 0;    // To make sure that playerSpeed doesn't stay less than 0
@@ -153,7 +99,6 @@ namespace GXPEngine
         {
             CalculatePivot();       // Calculate the center coordinates each frame
             CalculateSpeed();
-
             //Console.WriteLine("playerSpeed: {0} \ttime: {1} \tslowDownTime: {2} \tdecrease: {3} \tdeltaTime: {4}", playerSpeed, time, slowDownTime, (oldSpeed * PERCENTAGE) / ((float)TOTALTIME * PERCENTAGE) * Time.deltaTime, Time.deltaTime);
 
             // Apply the directional speed
