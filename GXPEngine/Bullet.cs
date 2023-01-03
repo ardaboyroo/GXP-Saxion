@@ -7,26 +7,51 @@ namespace GXPEngine
 {
     class Bullet : Player
     {
+        // You can tweak these
+        private const int BULLETTIME = 500;     // lifetime of the bullet in milliseconds
+
+        // Don't change these
         public static ArrayList bulletList = new ArrayList();
-        float bulletSpeed = 10;
+        public int lifeTime = BULLETTIME;        // time in milliseconds
+        private float bulletSpeed;
+        private int bulletIndex;
 
         public Bullet(Vector2 pos, float X, float Y, int givenDistance, string Sprite = "Assets/circle.png", int columns = 1, int rows = 1) : base(Sprite, columns, rows)
         {
-            this.x = pos.x;
-            this.y = pos.y;
-            Console.WriteLine(pivot);
             scale = 0.25f;
+            x = pos.x - width/2;
+            y = pos.y - height/2;
+            this.givenDistance = givenDistance;
+            bulletIndex = bulletList.Count;
+            Console.WriteLine(bulletIndex);
 
             float angle = Mathf.CalculateAngle(x, y, X, Y);
-            Velocity = new Vector2(Mathf.Cos(angle), Mathf.Sin(-angle));
+            Direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(-angle));
             bulletList.Add(this);
         }
 
-        public void Update()
+        private void CalculateSpeed()
         {
-            // Apply the directional speed
-            x += Velocity.x * bulletSpeed;
-            y += Velocity.y * bulletSpeed;
+            if (lifeTime >= 0)
+            {
+                lifeTime -= Time.deltaTime;
+                bulletSpeed = (float)givenDistance * ((float)Time.deltaTime / (float)BULLETTIME);
+            }
+            else
+            {
+                bulletList.RemoveAt(0);     // Remove the first bullet in the list
+                LateDestroy();              // Detroy the bullet from GameObject
+            }
         }
+
+        public new void Update()
+        {
+            CalculateSpeed();
+
+            // Apply the directional speed
+            x += Direction.x * bulletSpeed;
+            y += Direction.y * bulletSpeed;
+        }
+
     }
 }

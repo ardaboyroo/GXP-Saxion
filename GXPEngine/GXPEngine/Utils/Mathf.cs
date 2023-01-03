@@ -236,6 +236,7 @@ namespace GXPEngine
 
         public static float ClampRadians(float angle)
         {
+            // Clamps the given angle(-PI, PI) to  0, 2PI
             if (angle < 0)
             {
                 angle += (2 * PI);
@@ -250,11 +251,13 @@ namespace GXPEngine
 
         public static float CalculateAngle(float x1, float y1, float x2, float y2)
         {
+            // Calculates the angle between 2 points in  -PI, PI  before it clamps it to  0, 2PI
             return ClampRadians(Atan2(y1 - y2, x2 - x1));
         }
 
         public static float ReverseAngle(float angle)
         {
+            // Reverses the given angle(0, 2PI) by PI/180 degrees
             return angle + PI < 2 * PI ? angle += PI : angle -= PI;
         }
     }

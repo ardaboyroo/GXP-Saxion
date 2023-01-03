@@ -69,7 +69,7 @@ public class MyGame : Game
             if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
             {
                 myPlayer.CalculateVelocity(mouseX, mouseY, 150);
-                new Bullet(myPlayer.pivot, mouseX, mouseY, 1000);
+                new Bullet(new Vector2(myPlayer.x, myPlayer.y), mouseX, mouseY, 700);
             }
         }
     }
