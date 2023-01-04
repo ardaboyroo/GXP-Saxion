@@ -234,9 +234,40 @@ namespace GXPEngine
             return f < min ? min : (f > max ? max : f);
         }
 
+        //-------------------------------------------------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Changes the given angle from Radians to Degrees
+        /// </summary>
+        /// <param name="angle">
+        /// angle in Radians ranging from [0, 2PI)
+        /// </param>
+        /// <returns>angle in Degrees</returns>
+        public static float RadiansToDegrees(float angle)
+        {
+            return angle * (180.0f / PI);
+        }
+
+        /// <summary>
+        /// Changes the given angle from Degrees to Radians
+        /// </summary>
+        /// <param name="angle">
+        /// angle in Degrees ranging from [0, 360)</param>
+        /// <returns>angle in Radians</returns>
+        public static float DegreesToRadians(float angle)
+        {
+            return angle * (PI / 180.0f);
+        }
+
+        /// <summary>
+        /// Clamps the given angle ranging from (-PI, PI] to [0, 2PI)
+        /// </summary>
+        /// <param name="angle">
+        /// angle in Radians ranging from (-PI, PI]
+        /// </param>
+        /// <returns>angle in Radians ranging from [0, 2PI)</returns>
         public static float ClampRadians(float angle)
         {
-            // Clamps the given angle(-PI, PI) to  0, 2PI
             if (angle < 0)
             {
                 angle += (2 * PI);
@@ -249,15 +280,58 @@ namespace GXPEngine
             return angle;
         }
 
-        public static float CalculateAngle(float x1, float y1, float x2, float y2)
+        /// <summary>
+        /// Clamps the given angle ranging from (-90, 270] to [0, 360)
+        /// </summary>
+        /// <param name="angle">
+        /// angle in Degrees ranging from (-90, 270]
+        /// </param>
+        /// <returns>angle in Degrees ranging from [0, 360)</returns>
+        public static float ClampDegrees(float angle)
         {
-            // Calculates the angle between 2 points in  -PI, PI  before it clamps it to  0, 2PI
+            if (angle < 0)
+            {
+                angle += (2 * PI);
+            }
+
+            return angle;
+        }
+
+        /// <summary>
+        /// Calculates the angle from the first point to the second point in Radians
+        /// </summary>
+        /// <param name="x1">x coordinate of the first point</param>
+        /// <param name="y1">y coordinate of the first point</param>
+        /// <param name="x2">x coordinate of the second point</param>
+        /// <param name="y2">y coordinate of the second point</param>
+        /// <returns>angle between the two points in Radians</returns>
+        public static float CalculateAngleRad(float x1, float y1, float x2, float y2)
+        {
             return ClampRadians(Atan2(y1 - y2, x2 - x1));
         }
 
-        public static float ReverseAngle(float angle)
+        /// <summary>
+        /// Calculates the angle from the first point to the second point in Degrees
+        /// </summary>
+        /// <param name="x1">x coordinate of the first point</param>
+        /// <param name="y1">y coordinate of the first point</param>
+        /// <param name="x2">x coordinate of the second point</param>
+        /// <param name="y2">y coordinate of the second point</param>
+        /// <returns>angle between the two points in Degrees</returns>
+        public static float CalculateAngleDeg(float x1, float y1, float x2, float y2)
         {
-            // Reverses the given angle(0, 2PI) by PI/180 degrees
+            return RadiansToDegrees(ClampDegrees(Atan2(y2 - y1, x2 - x1) + PI/2));
+        }
+
+        /// <summary>
+        /// Reverses the given angle by 1 PI(180 Degrees)
+        /// </summary>
+        /// <param name="angle">
+        /// angle in Radians ranging from [0, 2PI)
+        /// </param>
+        /// <returns>the reversed angle in Radians</returns>
+        public static float ReverseAngleRad(float angle)
+        {
             return angle + PI < 2 * PI ? angle += PI : angle -= PI;
         }
     }

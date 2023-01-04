@@ -186,8 +186,8 @@ namespace GXPEngine
 		public float rotation {
 			get { return _rotation; }
 			set {
-				_rotation = value;
-				float r = _rotation * Mathf.PI / 180.0f;
+				_rotation = value * Mathf.PI / 180.0f;
+				float r = _rotation;
 				float cs = Mathf.Cos (r);
 				float sn = Mathf.Sin (r);
 				_matrix[0] = cs;

@@ -40,7 +40,9 @@ public class MyGame : Game
 
         lvl1 = new Sprite("Assets/circle.png");
         lvl2 = new Sprite("Assets/circle.png");
-        lvl3 = new Sprite("Assets/circle.png");
+        lvl3 = new Sprite("Assets/triangle.png");
+        Enemy myEnemy = new Enemy(500, 300, "Assets/triangle.png");
+        AddChild(myEnemy);
         AddChild(lvl1);
         AddChild(lvl2);
         AddChild(lvl3);
@@ -48,27 +50,29 @@ public class MyGame : Game
 
     void MoveMyPlayer()
     {
+        int speed = 3;
+
         if (Input.GetKey(Key.W))
         {
-            myPlayer.Move(0, -5);
+            myPlayer.Move(0, -speed);
         }
         if (Input.GetKey(Key.A))
         {
-            myPlayer.Move(-5, 0);
+            myPlayer.Move(-speed, 0);
         }
         if (Input.GetKey(Key.S))
         {
-            myPlayer.Move(0, 5);
+            myPlayer.Move(0, speed);
         }
         if (Input.GetKey(Key.D))
         {
-            myPlayer.Move(5, 0);
+            myPlayer.Move(speed, 0);
         }
         if (Input.GetMouseButtonDown(0))
         {
             if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
             {
-                myPlayer.CalculateVelocity(mouseX, mouseY, 150);
+                myPlayer.CalculateDirection(mouseX, mouseY, 150);
                 new Bullet(new Vector2(myPlayer.x, myPlayer.y), mouseX, mouseY, 700);
             }
         }
@@ -95,6 +99,7 @@ public class MyGame : Game
 
         foreach (Bullet i in Bullet.bulletList)
         {
+            // Check if the current bullet is already added
             if (!HasChild(i))
             {
                 AddChild(i);

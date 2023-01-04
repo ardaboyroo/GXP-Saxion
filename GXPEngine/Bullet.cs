@@ -16,16 +16,16 @@ namespace GXPEngine
         private float bulletSpeed;
         private int bulletIndex;
 
-        public Bullet(Vector2 pos, float X, float Y, int givenDistance, string Sprite = "Assets/circle.png", int columns = 1, int rows = 1) : base(Sprite, columns, rows)
+        public Bullet(Vector2 pos, float x, float y, int givenDistance, string Sprite = "Assets/circle.png", int columns = 1, int rows = 1) : base(Sprite, columns, rows)
         {
             scale = 0.25f;
-            x = pos.x - width/2;
-            y = pos.y - height/2;
+            this.x = pos.x - width/2;
+            this.y = pos.y - height/2;
             this.givenDistance = givenDistance;
             bulletIndex = bulletList.Count;
             Console.WriteLine(bulletIndex);
 
-            float angle = Mathf.CalculateAngle(x, y, X, Y);
+            float angle = Mathf.CalculateAngleRad(this.x, this.y, x, y);
             Direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(-angle));
             bulletList.Add(this);
         }

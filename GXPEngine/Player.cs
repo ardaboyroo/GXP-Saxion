@@ -11,6 +11,7 @@ namespace GXPEngine
         private const float PERCENTAGE = 1.0f;      // What percentage of the given distance is used as slow down distance
 
         // Don't change these
+        public static Vector2 playerPos = new Vector2();
         public bool isMoving = false;
 
         protected Vector2 Direction;
@@ -22,11 +23,13 @@ namespace GXPEngine
         private float oldSpeed;
         private bool debounce = false;
 
-        public Player(string Sprite, int columns, int rows, int X = 0, int Y = 0) : base(Sprite, columns, rows)
+        public Player(string Sprite, int columns, int rows, int x = 0, int y = 0) : base(Sprite, columns, rows)
         {
             SetOrigin(width/2, height/2);       // Set origin to the center
-            x = X;
-            y = Y;
+            this.x = x;
+            this.y = y;
+            playerPos.x = this.x;
+            playerPos.y = this.y;
         }
 
         public void Move(int stepX, int stepY)
@@ -36,10 +39,10 @@ namespace GXPEngine
             y += stepY;
         }
 
-        public void CalculateVelocity(float x, float y, int givenDistance)      // Call this when you want to change direction and speed
+        public void CalculateDirection(float x, float y, int givenDistance)      // Call this when you want to change direction and speed
         {
-            float angle = Mathf.CalculateAngle(this.x, this.y, x, y);
-            angle = Mathf.ReverseAngle(angle);
+            float angle = Mathf.CalculateAngleRad(this.x, this.y, x, y);
+            angle = Mathf.ReverseAngleRad(angle);
 
             // Calculate velocity from angle
             Direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(-angle));
@@ -97,7 +100,8 @@ namespace GXPEngine
             // Apply the directional speed
             x += Direction.x * playerSpeed;
             y += Direction.y * playerSpeed;
-
+            playerPos.x = x;
+            playerPos.y = y;
         }
     }
 }
