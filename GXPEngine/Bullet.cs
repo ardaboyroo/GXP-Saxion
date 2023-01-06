@@ -23,7 +23,6 @@ namespace GXPEngine
             this.y = pos.y - height/2;
             this.givenDistance = givenDistance;
             bulletIndex = bulletList.Count;
-            Console.WriteLine(bulletIndex);
 
             float angle = Mathf.CalculateAngleRad(this.x, this.y, x, y);
             Direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(-angle));

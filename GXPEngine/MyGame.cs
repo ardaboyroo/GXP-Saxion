@@ -6,18 +6,24 @@ using System.Runtime.CompilerServices;
 using System.IO; // File IO
 public class MyGame : Game
 {
+    public static Vector2 screenSize = new Vector2(1200, 800);
     Player myPlayer;
+    Cannon myCannon;
     int mouseX;
     int mouseY;
 
     Sprite lvl1;
     Sprite lvl2;
     Sprite lvl3;
-    const int level1Distance = 150;
+    int mouseTimer = 0;
+    const int level1Distance = 100;
     const int level2Distance = 300;
-    const int level3Distance = 500;
+    const int level3Distance = 700;
+    const int level1Time = 0;       // Starts at 0 until level2Time
+    const int level2Time = 300;     // Starts at level2Time until level3Time
+    const int level3Time = 750;     // Everything above level3Time
 
-    public MyGame() : base(1200, 800, false, false)     // Create a window that's 800x600 and NOT fullscreen, VSync = false
+    public MyGame() : base((int)screenSize.x, (int)screenSize.y, false, false)     // Create a window that's 800x600 and NOT fullscreen, VSync = false
     {
         targetFps = 60;       // Framerate
         /*
@@ -34,9 +40,10 @@ public class MyGame : Game
         // Add the canvas to the engine to display it:
         AddChild(canvas); 
         */
-        Console.WriteLine("MyGame initialized");
         myPlayer = new Player("Assets/circle.png", 1, 1);
+        myCannon = new Cannon();
         AddChild(myPlayer);
+        AddChild(myCannon);
 
         lvl1 = new Sprite("Assets/circle.png");
         lvl2 = new Sprite("Assets/circle.png");
@@ -48,32 +55,68 @@ public class MyGame : Game
         AddChild(lvl3);
     }
 
-    void MoveMyPlayer()
+    private int MouseTimer()
     {
-        int speed = 3;
+        if (Input.GetMouseButton(0))
+        {
+            mouseTimer += Time.deltaTime;
+        }
 
-        if (Input.GetKey(Key.W))
+        if (Input.GetMouseButtonUp(0) && mouseTimer > level1Time && mouseTimer < level2Time)
         {
-            myPlayer.Move(0, -speed);
+            mouseTimer = 0;
+            return 1;
         }
-        if (Input.GetKey(Key.A))
+
+        if (Input.GetMouseButtonUp(0) && mouseTimer > level2Time && mouseTimer < level3Time)
         {
-            myPlayer.Move(-speed, 0);
+            mouseTimer = 0;
+            return 2;
         }
-        if (Input.GetKey(Key.S))
+
+        if (Input.GetMouseButtonUp(0) && mouseTimer > level3Time)
         {
-            myPlayer.Move(0, speed);
+            mouseTimer = 0;
+            return 3;
         }
+
+        return 0;
+    }
+
+    void MoveMyPlayer(int level)
+    {
+        int speed = 5;
+
+        if (Input.GetKey(Key.W)) { myPlayer.Move(0, -speed); }
+        if (Input.GetKey(Key.A)) { myPlayer.Move(-speed, 0); }
+        if (Input.GetKey(Key.S)) {  myPlayer.Move(0, speed); }
         if (Input.GetKey(Key.D))
         {
             myPlayer.Move(speed, 0);
         }
-        if (Input.GetMouseButtonDown(0))
+
+        if (level == 1)
         {
             if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
             {
-                myPlayer.CalculateDirection(mouseX, mouseY, 150);
-                new Bullet(new Vector2(myPlayer.x, myPlayer.y), mouseX, mouseY, 700);
+                myPlayer.CalculateDirection(mouseX, mouseY, level1Distance);
+                new Bullet(new Vector2(myPlayer.x, myPlayer.y), mouseX, mouseY, 750);
+            }
+        }
+        else if (level == 2)
+        {
+            if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
+            {
+                myPlayer.CalculateDirection(mouseX, mouseY, level2Distance);
+                new Bullet(new Vector2(myPlayer.x, myPlayer.y), mouseX, mouseY, 750);
+            }
+        }
+        else if (level == 3)
+        {
+            if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
+            {
+                myPlayer.CalculateDirection(mouseX, mouseY, level3Distance);
+                new Bullet(new Vector2(myPlayer.x, myPlayer.y), mouseX, mouseY, 750);
             }
         }
     }
@@ -86,16 +129,16 @@ public class MyGame : Game
         mouseX = Input.mouseX;
         mouseY = Input.mouseY;
 
-        lvl1.x = 150;
-        lvl2.x = 300;
-        lvl3.x = 500;
+        lvl1.x = level1Distance;
+        lvl2.x = level2Distance;
+        lvl3.x = level3Distance;
 
         lvl1.y = lvl1.height;
         lvl2.y = lvl1.height * 2;
         lvl3.y = lvl1.height * 3;
 
+        MoveMyPlayer(MouseTimer());
 
-        MoveMyPlayer();
 
         foreach (Bullet i in Bullet.bulletList)
         {

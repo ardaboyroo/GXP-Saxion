@@ -15,7 +15,7 @@ namespace GXPEngine
         public bool isMoving = false;
 
         protected Vector2 Direction;
-        protected float playerSpeed;
+        protected float speed;
 
         protected int givenDistance;
         private int time = TOTALTIME;
@@ -25,7 +25,7 @@ namespace GXPEngine
 
         public Player(string Sprite, int columns, int rows, int x = 0, int y = 0) : base(Sprite, columns, rows)
         {
-            SetOrigin(width/2, height/2);       // Set origin to the center
+            SetOrigin(width / 2, height / 2);       // Set origin to the center
             this.x = x;
             this.y = y;
             playerPos.x = this.x;
@@ -67,39 +67,48 @@ namespace GXPEngine
                 {
                     isMoving = true;
                     time -= Time.deltaTime;
-                    playerSpeed = (float)givenDistance * ((float)Time.deltaTime / (float)TOTALTIME);
-                    oldSpeed = playerSpeed;     // Use the last calculated speed for slowDown
+                    speed = (float)givenDistance * ((float)Time.deltaTime / (float)TOTALTIME);
+                    oldSpeed = speed;     // Use the last calculated speed for slowDown
                 }
 
                 // Decrease the player speed until it is 0
-                else if (playerSpeed > 0 && time < 0 && slowDownTime >= 0)
+                else if (speed > 0 && time < 0 && slowDownTime >= 0)
                 {
                     isMoving = false;
                     slowDownTime -= Time.deltaTime;
                     float decrease = oldSpeed / ((float)TOTALTIME * PERCENTAGE) * Time.deltaTime;
-                    playerSpeed -= decrease;
+                    speed -= decrease;
                 }
 
                 // Reset the time and debounce when the player stands still
                 // slowDownTime < 1 because floats aren't exact and can leave very small numbers
-                else if (playerSpeed <= 0 && time < 0 && slowDownTime < 1)
+                else if (speed <= 0 && time < 0 && slowDownTime < 1)
                 {
                     debounce = false;
-                    playerSpeed = 0;    // To make sure that playerSpeed doesn't stay less than 0
+                    speed = 0;    // To make sure that playerSpeed doesn't stay less than 0
                     time = TOTALTIME;
                     slowDownTime = (float)TOTALTIME * PERCENTAGE;
                 }
             }
         }
 
+        private void Borders()
+        {
+            if (x < 0) { x = MyGame.screenSize.x; }
+            if (x > MyGame.screenSize.x) { x = 0; }
+            if (y < 0) { y = MyGame.screenSize.y; }
+            if (y > MyGame.screenSize.y) { y = 0; }
+        }
+
         public void Update()
         {
             CalculateSpeed();
+            Borders();
             //Console.WriteLine("playerSpeed: {0} \ttime: {1} \tslowDownTime: {2} \tdecrease: {3} \tdeltaTime: {4}", playerSpeed, time, slowDownTime, (oldSpeed * PERCENTAGE) / ((float)TOTALTIME * PERCENTAGE) * Time.deltaTime, Time.deltaTime);
 
             // Apply the directional speed
-            x += Direction.x * playerSpeed;
-            y += Direction.y * playerSpeed;
+            x += Direction.x * speed;
+            y += Direction.y * speed;
             playerPos.x = x;
             playerPos.y = y;
         }
