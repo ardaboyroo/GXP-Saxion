@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace GXPEngine
 {
-    class Bullet : Player
+    class Bullet : Character
     {
         // You can tweak these
         private const int BULLETTIME = 500;     // lifetime of the bullet in milliseconds
@@ -43,7 +43,7 @@ namespace GXPEngine
             }
         }
 
-        public new void Update()
+        public void Update()
         {
             CalculateSpeed();
 

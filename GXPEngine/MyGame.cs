@@ -6,26 +6,50 @@ using System.Runtime.CompilerServices;
 using System.IO; // File IO
 public class MyGame : Game
 {
-    public static Vector2 screenSize = new Vector2(1200, 800);
-    Player myPlayer;
+    public static Vector2 screenSize = new Vector2(1216, 832);
+    MyPlayer myPlayer;
     Cannon myCannon;
-    int mouseX;
-    int mouseY;
+    Enemy myEnemy;
 
-    Sprite lvl1;
-    Sprite lvl2;
-    Sprite lvl3;
-    int mouseTimer = 0;
     const int level1Distance = 100;
     const int level2Distance = 300;
     const int level3Distance = 700;
-    const int level1Time = 0;       // Starts at 0 until level2Time
-    const int level2Time = 300;     // Starts at level2Time until level3Time
-    const int level3Time = 750;     // Everything above level3Time
 
-    public MyGame() : base((int)screenSize.x, (int)screenSize.y, false, false)     // Create a window that's 800x600 and NOT fullscreen, VSync = false
+    private int level = 0;
+
+    public MyGame() : base((int)screenSize.x, (int)screenSize.y, false, false)     // Create a window that's 1200x800 and NOT fullscreen, VSync = false
     {
         targetFps = 60;       // Framerate
+        AddChild(new Mouse());
+
+
+        // Borders
+        for (int j = 0; j < screenSize.y; j += 64)
+        {
+            for (int i = 0; i < screenSize.x; i += 64)
+            {
+                // Outer border tiles
+                Sprite border = new Sprite("Assets/square.png");
+                if (j == 0 || j == screenSize.y - 64 || i == 0 || i == screenSize.x - 64)
+                {
+                    border.x = i;
+                    border.y = j;
+                }
+
+                // Inner tiles
+                if (j >= 64 && j <= screenSize.y - 128 && i >= 64 && i <= screenSize.x - 128)
+                {
+                    border.x = i;
+                    border.y = j;
+                    border.alpha = 0.3f;
+                    Console.WriteLine(i <= screenSize.x - 64);
+                }
+
+                AddChild(border);
+            }
+        }
+
+
         /*
         // Draw some things on a canvas:
         EasyDraw canvas = new EasyDraw(800, 600);
@@ -40,105 +64,70 @@ public class MyGame : Game
         // Add the canvas to the engine to display it:
         AddChild(canvas); 
         */
-        myPlayer = new Player("Assets/circle.png", 1, 1);
-        myCannon = new Cannon();
+
+        myPlayer = new MyPlayer("Assets/circle.png", 1, 1, 600, 400);
         AddChild(myPlayer);
-        AddChild(myCannon);
 
-        lvl1 = new Sprite("Assets/circle.png");
-        lvl2 = new Sprite("Assets/circle.png");
-        lvl3 = new Sprite("Assets/triangle.png");
-        Enemy myEnemy = new Enemy(500, 300, "Assets/triangle.png");
+        myEnemy = new Enemy(0, 0, "Assets/triangle.png");
         AddChild(myEnemy);
-        AddChild(lvl1);
-        AddChild(lvl2);
-        AddChild(lvl3);
+
+        myCannon = new Cannon();
+        AddChild(myCannon);
     }
 
-    private int MouseTimer()
-    {
-        if (Input.GetMouseButton(0))
-        {
-            mouseTimer += Time.deltaTime;
-        }
-
-        if (Input.GetMouseButtonUp(0) && mouseTimer > level1Time && mouseTimer < level2Time)
-        {
-            mouseTimer = 0;
-            return 1;
-        }
-
-        if (Input.GetMouseButtonUp(0) && mouseTimer > level2Time && mouseTimer < level3Time)
-        {
-            mouseTimer = 0;
-            return 2;
-        }
-
-        if (Input.GetMouseButtonUp(0) && mouseTimer > level3Time)
-        {
-            mouseTimer = 0;
-            return 3;
-        }
-
-        return 0;
-    }
-
-    void MoveMyPlayer(int level)
+    void MoveMyPlayer()
     {
         int speed = 5;
 
         if (Input.GetKey(Key.W)) { myPlayer.Move(0, -speed); }
         if (Input.GetKey(Key.A)) { myPlayer.Move(-speed, 0); }
-        if (Input.GetKey(Key.S)) {  myPlayer.Move(0, speed); }
-        if (Input.GetKey(Key.D))
+        if (Input.GetKey(Key.S)) { myPlayer.Move(0, speed); }
+        if (Input.GetKey(Key.D)) { myPlayer.Move(speed, 0); }
+
+
+        if (Input.GetMouseButtonUp(0) && level == 1)
         {
-            myPlayer.Move(speed, 0);
+            if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
+            {
+                myPlayer.CalculateKnockback(Mouse.x, Mouse.y, level1Distance);
+                new Bullet(MyPlayer.playerPos, Mouse.x, Mouse.y, 250);
+            }
+        }
+        else if (Input.GetMouseButtonUp(0) && level == 2)
+        {
+            if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
+            {
+                myPlayer.CalculateKnockback(Mouse.x, Mouse.y, level2Distance);
+                new Bullet(MyPlayer.playerPos, Mouse.x, Mouse.y, 600);
+            }
+        }
+        else if (Input.GetMouseButtonUp(0) && level == 3)
+        {
+            if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
+            {
+                myPlayer.CalculateKnockback(Mouse.x, Mouse.y, level3Distance);
+                new Bullet(MyPlayer.playerPos, Mouse.x, Mouse.y, 1000);
+            }
         }
 
-        if (level == 1)
+        level = Mouse.MouseTimer();
+    }
+
+    void CollisionChecker()
+    {
+        if (myEnemy.HitTest(myPlayer) && !myPlayer.isMoving)
         {
-            if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
-            {
-                myPlayer.CalculateDirection(mouseX, mouseY, level1Distance);
-                new Bullet(new Vector2(myPlayer.x, myPlayer.y), mouseX, mouseY, 750);
-            }
-        }
-        else if (level == 2)
-        {
-            if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
-            {
-                myPlayer.CalculateDirection(mouseX, mouseY, level2Distance);
-                new Bullet(new Vector2(myPlayer.x, myPlayer.y), mouseX, mouseY, 750);
-            }
-        }
-        else if (level == 3)
-        {
-            if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
-            {
-                myPlayer.CalculateDirection(mouseX, mouseY, level3Distance);
-                new Bullet(new Vector2(myPlayer.x, myPlayer.y), mouseX, mouseY, 750);
-            }
+            myPlayer.CalculateKnockback(myEnemy.x, myEnemy.y, 125);
+            myEnemy.CalculateKnockback(myPlayer.x, myPlayer.y, 20);
+            myPlayer.TakeDamage(25);
         }
     }
 
-
     // For every game object, Update is called every frame, by the engine:
-    void Update()
+    public void Update()
     {
-        // Set the mouse positions every frame
-        mouseX = Input.mouseX;
-        mouseY = Input.mouseY;
-
-        lvl1.x = level1Distance;
-        lvl2.x = level2Distance;
-        lvl3.x = level3Distance;
-
-        lvl1.y = lvl1.height;
-        lvl2.y = lvl1.height * 2;
-        lvl3.y = lvl1.height * 3;
-
-        MoveMyPlayer(MouseTimer());
-
+        MoveMyPlayer();
+        CollisionChecker();
 
         foreach (Bullet i in Bullet.bulletList)
         {

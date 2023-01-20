@@ -43,7 +43,9 @@
     <Compile Include="Bullet.cs" />
     <Compile Include="Cannon.cs" />
     <Compile Include="Enemy.cs" />
-    <Compile Include="Player.cs" />
+    <Compile Include="Mouse.cs" />
+    <Compile Include="MyPlayer.cs" />
+    <Compile Include="Character.cs" />
     <Compile Include="GXPEngine\AddOns\Gizmos.cs" />
     <Compile Include="GXPEngine\AddOns\SpriteBatch.cs" />
     <Compile Include="GXPEngine\AddOns\TiledLoader.cs" />

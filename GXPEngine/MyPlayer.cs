@@ -1,40 +1,40 @@
-﻿using System;
-using System.Threading;
-using GXPEngine.Core;
+﻿using GXPEngine.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace GXPEngine
 {
-    class Enemy : Character
+    class MyPlayer : Character
     {
-        private const float SPEED = 0.2f;       // Amount of speed for each millisecond
-        private const int TOTALTIME = 100;          // Time it takes for the player to start slowing down in milliseconds
+        // You can tweak these
+        private const int TOTALTIME = 250;          // Time it takes for the player to start slowing down in milliseconds
         private const float PERCENTAGE = 1.0f;      // What percentage of the given distance is used as slow down distance
 
-        private bool debounce = false;
+        // Don't change these
+        public static Vector2 playerPos = new Vector2();
+        public bool isMoving = false;
+
         private int time = TOTALTIME;
         private float slowDownTime = (float)TOTALTIME * PERCENTAGE;
         private float oldSpeed;
+        private bool debounce = false;
 
 
-        public Enemy(int x, int y, string Sprite = "Assets/triangle.png", int columns = 1, int rows = 1) : base(Sprite, columns, rows, x, y)
+        public MyPlayer(string Sprite, int columns, int rows, int x = 0, int y = 0) : base(Sprite, columns, rows, x, y)
         {
-
+            playerPos.x = this.x;
+            playerPos.y = this.y;
         }
 
-
-        private void CalculateDirection()
+        public void Move(int stepX, int stepY)
         {
-            // Rotate the sprite to the player direction
-            rotation = Mathf.CalculateAngleDeg(x, y, MyPlayer.playerPos.x, MyPlayer.playerPos.y);
-
-            if (!debounce)
-            {
-                // Calculate the angle in which the Enemy sprite will move towards
-                float angle = Mathf.CalculateAngleRad(x, y, MyPlayer.playerPos.x, MyPlayer.playerPos.y);
-                Direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(-angle));
-            }
+            // WASD controls for debugging
+            x += stepX;
+            y += stepY;
         }
-
 
         public void CalculateKnockback(float x, float y, int givenDistance)      // Call this when you want to change direction and speed
         {
@@ -54,18 +54,15 @@ namespace GXPEngine
             slowDownTime = (float)TOTALTIME * PERCENTAGE;
         }
 
-
         private void CalculateSpeed()
         {
-            // speed = SPEED * Time.deltaTime;
-
-
             // This is for calculating the constant speed and decreasing speed each frame with deltaTime
             if (debounce)
             {
                 // Calculate the constant player speed for "TOTALTIME" amount of milliseconds
                 if (time >= 0)
                 {
+                    isMoving = true;
                     time -= Time.deltaTime;
                     speed = (float)givenDistance * ((float)Time.deltaTime / (float)TOTALTIME);
                     oldSpeed = speed;     // Use the last calculated speed for slowDown
@@ -74,13 +71,14 @@ namespace GXPEngine
                 // Decrease the player speed until it is 0
                 else if (speed > 0 && time < 0 && slowDownTime >= 0)
                 {
+                    isMoving = false;
                     slowDownTime -= Time.deltaTime;
                     float decrease = oldSpeed / ((float)TOTALTIME * PERCENTAGE) * Time.deltaTime;
                     speed -= decrease;
                 }
 
                 // Reset the time and debounce when the player stands still
-                // slowDownTime < 1 because floats aren't exact and can leave very small numbers
+                // slowDownTime < 1 instead because floats aren't exact and can leave very small numbers
                 else if (speed <= 0 && time < 0 && slowDownTime < 1)
                 {
                     debounce = false;
@@ -89,20 +87,26 @@ namespace GXPEngine
                     slowDownTime = (float)TOTALTIME * PERCENTAGE;
                 }
             }
-            else
-            {
-                speed = SPEED * Time.deltaTime;
-            }
         }
 
+        private void Borders()
+        {
+            if (x < 96) { if (Direction.x < 0) { Direction.x *= -1; } }
+            if (x > MyGame.screenSize.x - 96) { if (Direction.x > 0) { Direction.x *= -1; } }
+            if (y < 96) { if (Direction.y < 0) { Direction.y *= -1; } }
+            if (y > MyGame.screenSize.y - 96) { if (Direction.y > 0) { Direction.y *= -1; } }
+        }
 
         public void Update()
         {
-            CalculateDirection();
             CalculateSpeed();
-            Console.WriteLine("Direction: {0}", Direction.x);
+            Borders();
+
+            // Apply the directional speed
             x += Direction.x * speed;
             y += Direction.y * speed;
+            playerPos.x = x;
+            playerPos.y = y;
         }
     }
 }

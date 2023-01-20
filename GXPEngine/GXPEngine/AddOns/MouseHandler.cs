@@ -113,6 +113,8 @@ namespace GXPEngine
 			}
 
 			_wasOnTarget = isOnTarget;
+
+			Console.WriteLine("eiwhfbikdsjb");
 		}
 
 		//contains offset from mouse to target on click
@@ -123,7 +125,6 @@ namespace GXPEngine
 		~MouseHandler()
 		{
 			_game.OnAfterStep -= HandleOnStep;
-
 		}
 
 
