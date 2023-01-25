@@ -14,7 +14,6 @@ namespace GXPEngine
         public static ArrayList bulletList = new ArrayList();
         public int lifeTime = BULLETTIME;        // time in milliseconds
         private float bulletSpeed;
-        private int bulletIndex;
 
         public Bullet(Vector2 pos, float x, float y, int givenDistance, string Sprite = "Assets/circle.png", int columns = 1, int rows = 1) : base(Sprite, columns, rows)
         {
@@ -22,7 +21,6 @@ namespace GXPEngine
             this.x = pos.x - width/2;
             this.y = pos.y - height/2;
             this.givenDistance = givenDistance;
-            bulletIndex = bulletList.Count;
 
             float angle = Mathf.CalculateAngleRad(this.x, this.y, x, y);
             Direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(-angle));

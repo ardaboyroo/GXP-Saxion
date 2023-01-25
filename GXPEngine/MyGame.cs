@@ -1,4 +1,4 @@
-using System;                                   // System contains a lot of default C# libraries 
+﻿using System;                                   // System contains a lot of default C# libraries 
 using GXPEngine;                                // GXPEngine contains the engine
 using System.Drawing;                           // System.Drawing contains drawing tools such as Color definitions
 using GXPEngine.Core;
@@ -42,7 +42,6 @@ public class MyGame : Game
                     border.x = i;
                     border.y = j;
                     border.alpha = 0.3f;
-                    Console.WriteLine(i <= screenSize.x - 64);
                 }
 
                 AddChild(border);
@@ -87,7 +86,7 @@ public class MyGame : Game
 
         if (Input.GetMouseButtonUp(0) && level == 1)
         {
-            if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
+            if (!myPlayer.isMoving)     // Player won't be able to change direction while already moving
             {
                 myPlayer.CalculateKnockback(Mouse.x, Mouse.y, level1Distance);
                 new Bullet(MyPlayer.playerPos, Mouse.x, Mouse.y, 250);
@@ -95,7 +94,7 @@ public class MyGame : Game
         }
         else if (Input.GetMouseButtonUp(0) && level == 2)
         {
-            if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
+            if (!myPlayer.isMoving)     // Player won't be able to change direction while already moving
             {
                 myPlayer.CalculateKnockback(Mouse.x, Mouse.y, level2Distance);
                 new Bullet(MyPlayer.playerPos, Mouse.x, Mouse.y, 600);
@@ -103,7 +102,7 @@ public class MyGame : Game
         }
         else if (Input.GetMouseButtonUp(0) && level == 3)
         {
-            if (!myPlayer.isMoving)     // This is so that the player won't be able to change direction while already moving
+            if (!myPlayer.isMoving)     // Player won't be able to change direction while already moving
             {
                 myPlayer.CalculateKnockback(Mouse.x, Mouse.y, level3Distance);
                 new Bullet(MyPlayer.playerPos, Mouse.x, Mouse.y, 1000);
@@ -115,7 +114,7 @@ public class MyGame : Game
 
     void CollisionChecker()
     {
-        if (myEnemy.HitTest(myPlayer) && !myPlayer.isMoving)
+        if (myPlayer.DistanceTo(myEnemy) <= 62 && !myPlayer.isMoving)
         {
             myPlayer.CalculateKnockback(myEnemy.x, myEnemy.y, 125);
             myEnemy.CalculateKnockback(myPlayer.x, myPlayer.y, 20);

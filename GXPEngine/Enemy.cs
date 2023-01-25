@@ -100,7 +100,6 @@ namespace GXPEngine
         {
             CalculateDirection();
             CalculateSpeed();
-            Console.WriteLine("Direction: {0}", Direction.x);
             x += Direction.x * speed;
             y += Direction.y * speed;
         }
