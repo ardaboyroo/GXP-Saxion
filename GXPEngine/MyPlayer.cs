@@ -54,6 +54,15 @@ namespace GXPEngine
             slowDownTime = (float)TOTALTIME * PERCENTAGE;
         }
 
+        private void CheckHealth()
+        {
+            if (health <= 0)
+            {
+                playerIsAlive = false;
+                LateDestroy();
+            }
+        }
+
         private void CalculateSpeed()
         {
             // This is for calculating the constant speed and decreasing speed each frame with deltaTime
@@ -99,6 +108,7 @@ namespace GXPEngine
 
         public void Update()
         {
+            CheckHealth();
             CalculateSpeed();
             Borders();
 

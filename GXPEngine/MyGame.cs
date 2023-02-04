@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.IO; // File IO
 public class MyGame : Game
 {
-    public static Vector2 screenSize = new Vector2(1216, 832);
+    public static readonly Vector2 screenSize = new Vector2(1216, 832);
     MyPlayer myPlayer;
     Cannon myCannon;
     Enemy myEnemy;
@@ -156,6 +156,7 @@ public class MyGame : Game
         int readNum = int.Parse(input2); // may give exception
         Console.WriteLine("I read this number: "+readNum);
         Console.ReadKey();
+        reader.Close();
         */
         new MyGame().Start();                   // Create a "MyGame" and start it
     }

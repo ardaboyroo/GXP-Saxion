@@ -12,6 +12,14 @@ namespace GXPEngine
             SetOrigin(width / 2, height * 0.75f);
         }
 
+        private void CheckHealth()
+        {
+            if (!playerIsAlive)
+            {
+                LateDestroy();
+            }
+        }
+
         private void UpdateRotation()
         {
             rotation = Mathf.CalculateAngleDeg(x, y, Mouse.x, Mouse.y);
@@ -24,6 +32,7 @@ namespace GXPEngine
 
         public new void Update()
         {
+            CheckHealth();
             UpdateRotation();
             UpdateSprite();
 
