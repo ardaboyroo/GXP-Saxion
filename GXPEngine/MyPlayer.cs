@@ -36,8 +36,10 @@ namespace GXPEngine
             y += stepY;
         }
 
-        public void CalculateKnockback(float x, float y, int givenDistance)      // Call this when you want to change direction and speed
+        public void CalculateKnockback(float x, float y, int givenDistance, bool isDeadly)      // Call this when you want to change direction and speed
         {
+            isMoving = isDeadly;
+
             float angle = Mathf.CalculateAngleRad(this.x, this.y, x, y);
             angle = Mathf.ReverseAngleRad(angle);
 
@@ -71,7 +73,6 @@ namespace GXPEngine
                 // Calculate the constant player speed for "TOTALTIME" amount of milliseconds
                 if (time >= 0)
                 {
-                    isMoving = true;
                     time -= Time.deltaTime;
                     speed = (float)givenDistance * ((float)Time.deltaTime / (float)TOTALTIME);
                     oldSpeed = speed;     // Use the last calculated speed for slowDown

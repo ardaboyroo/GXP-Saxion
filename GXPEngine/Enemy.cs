@@ -14,6 +14,7 @@ namespace GXPEngine
         private int time = TOTALTIME;
         private float slowDownTime = (float)TOTALTIME * PERCENTAGE;
         private float oldSpeed;
+        public bool isAlive = true;
 
 
         public Enemy(int x, int y, string Sprite = "Assets/triangle.png", int columns = 1, int rows = 1) : base(Sprite, columns, rows, x, y)
@@ -95,11 +96,20 @@ namespace GXPEngine
             }
         }
 
+        private void CheckHealth()
+        {
+            if (health <= 0)
+            {
+                isAlive = false;
+                LateDestroy();
+            }
+        }
 
         public void Update()
         {
             CalculateDirection();
             CalculateSpeed();
+            CheckHealth();
             x += Direction.x * speed;
             y += Direction.y * speed;
         }

@@ -22,32 +22,7 @@ public class MyGame : Game
         targetFps = 60;       // Framerate
         AddChild(new Mouse());
 
-
-        // Borders
-        for (int j = 0; j < screenSize.y; j += 64)
-        {
-            for (int i = 0; i < screenSize.x; i += 64)
-            {
-                // Outer border tiles
-                Sprite border = new Sprite("Assets/square.png");
-                if (j == 0 || j == screenSize.y - 64 || i == 0 || i == screenSize.x - 64)
-                {
-                    border.x = i;
-                    border.y = j;
-                }
-
-                // Inner tiles
-                if (j >= 64 && j <= screenSize.y - 128 && i >= 64 && i <= screenSize.x - 128)
-                {
-                    border.x = i;
-                    border.y = j;
-                    border.alpha = 0.3f;
-                }
-
-                AddChild(border);
-            }
-        }
-
+        DrawTiles();
 
         /*
         // Draw some things on a canvas:
@@ -74,7 +49,7 @@ public class MyGame : Game
         AddChild(myCannon);
     }
 
-    void MoveMyPlayer()
+    private void MoveMyPlayer()
     {
         int speed = 5;
 
@@ -88,15 +63,15 @@ public class MyGame : Game
         {
             if (!myPlayer.isMoving)     // Player won't be able to change direction while already moving
             {
-                myPlayer.CalculateKnockback(Mouse.x, Mouse.y, level1Distance);
-                new Bullet(MyPlayer.playerPos, Mouse.x, Mouse.y, 250);
+                myPlayer.CalculateKnockback(Mouse.x, Mouse.y, level1Distance, true);
+                new Bullet(MyPlayer.playerPos, Mouse.x, Mouse.y, 150);
             }
         }
         else if (Input.GetMouseButtonUp(0) && level == 2)
         {
             if (!myPlayer.isMoving)     // Player won't be able to change direction while already moving
             {
-                myPlayer.CalculateKnockback(Mouse.x, Mouse.y, level2Distance);
+                myPlayer.CalculateKnockback(Mouse.x, Mouse.y, level2Distance, true);
                 new Bullet(MyPlayer.playerPos, Mouse.x, Mouse.y, 600);
             }
         }
@@ -104,7 +79,7 @@ public class MyGame : Game
         {
             if (!myPlayer.isMoving)     // Player won't be able to change direction while already moving
             {
-                myPlayer.CalculateKnockback(Mouse.x, Mouse.y, level3Distance);
+                myPlayer.CalculateKnockback(Mouse.x, Mouse.y, level3Distance, true);
                 new Bullet(MyPlayer.playerPos, Mouse.x, Mouse.y, 1000);
             }
         }
@@ -112,13 +87,28 @@ public class MyGame : Game
         level = Mouse.MouseTimer();
     }
 
-    void CollisionChecker()
+    private void CollisionChecker()
     {
-        if (myPlayer.DistanceTo(myEnemy) <= 62 && !myPlayer.isMoving)
+        // I use distance instead of hittest because it is more precise
+        // Player hit enemy while not moving
+
+        if (myEnemy.isAlive)
         {
-            myPlayer.CalculateKnockback(myEnemy.x, myEnemy.y, 125);
-            myEnemy.CalculateKnockback(myPlayer.x, myPlayer.y, 20);
-            myPlayer.TakeDamage(25);
+            // Player hits enemy while not moving
+            if (myPlayer.DistanceTo(myEnemy) <= 62 && !myPlayer.isMoving)
+            {
+                myPlayer.CalculateKnockback(myEnemy.x, myEnemy.y, 125, false);
+                myEnemy.CalculateKnockback(myPlayer.x, myPlayer.y, 20);
+                myPlayer.TakeDamage(25);
+                Console.WriteLine("enemy hit you");
+            }
+
+            // Player hits enemy while moving
+            if (myPlayer.DistanceTo(myEnemy) <= 62 && myPlayer.isMoving)
+            {
+                myEnemy.TakeDamage(100);
+                Console.WriteLine("you hit enemy");
+            }
         }
     }
 
@@ -158,6 +148,37 @@ public class MyGame : Game
         Console.ReadKey();
         reader.Close();
         */
-        new MyGame().Start();                   // Create a "MyGame" and start it
+        MyGame mygame = new MyGame();                   // Create a "MyGame" and start it
+        mygame.Start();
+    }
+
+    private void DrawTiles()
+    {
+        // Borders
+        for (int j = 0; j < screenSize.y; j += 64)
+        {
+            for (int i = 0; i < screenSize.x; i += 64)
+            {
+
+                // Outer border tiles
+
+                if (j == 0 || j == screenSize.y - 64 || i == 0 || i == screenSize.x - 64)
+                {
+                    Sprite border = new Sprite("Assets/metal_plate2.png");
+                    border.scale = 2;
+                    border.x = i;
+                    border.y = j;
+                    AddChild(border);
+                }
+
+                // Inner tiles
+                Sprite tile = new Sprite("Assets/Platform.png");
+                tile.x = i;
+                tile.y = j;
+                tile.alpha = 0.4f;
+                AddChild(tile);
+
+            }
+        }
     }
 }

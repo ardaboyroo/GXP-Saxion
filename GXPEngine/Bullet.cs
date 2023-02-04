@@ -25,6 +25,7 @@ namespace GXPEngine
             float angle = Mathf.CalculateAngleRad(this.x, this.y, x, y);
             Direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(-angle));
             bulletList.Add(this);
+            
         }
 
         private void CalculateSpeed()
