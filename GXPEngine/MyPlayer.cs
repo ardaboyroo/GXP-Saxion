@@ -22,7 +22,6 @@ namespace GXPEngine
         private float oldSpeed;
         private bool debounce = false;
 
-
         public MyPlayer(string Sprite, int columns, int rows, int x = 0, int y = 0) : base(Sprite, columns, rows, x, y)
         {
             playerPos.x = this.x;

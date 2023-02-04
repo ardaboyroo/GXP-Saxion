@@ -7,9 +7,19 @@ namespace GXPEngine
 {
     class Cannon : Character
     {
+        private Sound cannonSFX;
+
         public Cannon() : base("Assets/Cannons.png", 3, 1)
         {
             SetOrigin(width / 2, height * 0.75f);
+            cannonSFX = new Sound("Assets/Cannon.wav");
+        }
+
+        public void CannonSFX(float Volume, float Frequency = 1)
+        {
+            SoundChannel temp = cannonSFX.Play();
+            temp.Volume = Volume;
+            temp.Frequency *= Frequency;
         }
 
         private void CheckHealth()

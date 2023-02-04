@@ -20,9 +20,7 @@ public class MyGame : Game
     public MyGame() : base((int)screenSize.x, (int)screenSize.y, false, false)     // Create a window that's 1200x800 and NOT fullscreen, VSync = false
     {
         targetFps = 60;       // Framerate
-        AddChild(new Mouse());
-
-        DrawTiles();
+        Initialize();
 
         /*
         // Draw some things on a canvas:
@@ -38,6 +36,15 @@ public class MyGame : Game
         // Add the canvas to the engine to display it:
         AddChild(canvas); 
         */
+
+
+    }
+
+    private void Initialize()
+    {
+        AddChild(new Mouse());  // So Mouse.Update() is called automatically
+
+        DrawTiles();
 
         myPlayer = new MyPlayer("Assets/circle.png", 1, 1, 600, 400);
         AddChild(myPlayer);
@@ -65,6 +72,7 @@ public class MyGame : Game
             {
                 myPlayer.CalculateKnockback(Mouse.x, Mouse.y, level1Distance, true);
                 new Bullet(MyPlayer.playerPos, Mouse.x, Mouse.y, 150);
+                myCannon.CannonSFX(0.5f, 1.75f);
             }
         }
         else if (Input.GetMouseButtonUp(0) && level == 2)
@@ -73,6 +81,7 @@ public class MyGame : Game
             {
                 myPlayer.CalculateKnockback(Mouse.x, Mouse.y, level2Distance, true);
                 new Bullet(MyPlayer.playerPos, Mouse.x, Mouse.y, 600);
+                myCannon.CannonSFX(1.5f, 1.25f);
             }
         }
         else if (Input.GetMouseButtonUp(0) && level == 3)
@@ -81,6 +90,7 @@ public class MyGame : Game
             {
                 myPlayer.CalculateKnockback(Mouse.x, Mouse.y, level3Distance, true);
                 new Bullet(MyPlayer.playerPos, Mouse.x, Mouse.y, 1000);
+                myCannon.CannonSFX(3);
             }
         }
 
@@ -100,14 +110,22 @@ public class MyGame : Game
                 myPlayer.CalculateKnockback(myEnemy.x, myEnemy.y, 125, false);
                 myEnemy.CalculateKnockback(myPlayer.x, myPlayer.y, 20);
                 myPlayer.TakeDamage(25);
-                Console.WriteLine("enemy hit you");
             }
 
             // Player hits enemy while moving
             if (myPlayer.DistanceTo(myEnemy) <= 62 && myPlayer.isMoving)
             {
                 myEnemy.TakeDamage(100);
-                Console.WriteLine("you hit enemy");
+            }
+
+            // Bullet hits enemy
+            foreach (Bullet bullet in Bullet.bulletList)
+            {
+                if (bullet.HitTest(myEnemy) && !bullet.hasHit)
+                {
+                    myEnemy.TakeDamage(25);
+                    bullet.hasHit = true;
+                }
             }
         }
     }
@@ -118,12 +136,16 @@ public class MyGame : Game
         MoveMyPlayer();
         CollisionChecker();
 
-        foreach (Bullet i in Bullet.bulletList)
+
+        Console.WriteLine(myEnemy.health);
+
+
+        foreach (Bullet bullet in Bullet.bulletList)
         {
             // Check if the current bullet is already added
-            if (!HasChild(i))
+            if (!HasChild(bullet))
             {
-                AddChild(i);
+                AddChild(bullet);
             }
         }
     }

@@ -15,11 +15,11 @@ namespace GXPEngine
         private float slowDownTime = (float)TOTALTIME * PERCENTAGE;
         private float oldSpeed;
         public bool isAlive = true;
-
+        private Sound explosionSFX;
 
         public Enemy(int x, int y, string Sprite = "Assets/triangle.png", int columns = 1, int rows = 1) : base(Sprite, columns, rows, x, y)
         {
-
+            explosionSFX = new Sound("Assets/Explosion.wav");
         }
 
 
@@ -101,6 +101,7 @@ namespace GXPEngine
             if (health <= 0)
             {
                 isAlive = false;
+                explosionSFX.Play();
                 LateDestroy();
             }
         }
