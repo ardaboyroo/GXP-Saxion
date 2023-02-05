@@ -7,9 +7,12 @@ using System.IO; // File IO
 public class MyGame : Game
 {
     public static readonly Vector2 screenSize = new Vector2(1216, 832);
+    private int score = 0;
     MyPlayer myPlayer;
     Cannon myCannon;
     Enemy myEnemy;
+
+    HUD myHUD;
 
     const int level1Distance = 100;
     const int level2Distance = 300;
@@ -21,23 +24,6 @@ public class MyGame : Game
     {
         targetFps = 60;       // Framerate
         Initialize();
-
-        /*
-        // Draw some things on a canvas:
-        EasyDraw canvas = new EasyDraw(800, 600);
-        canvas.Clear(Color.MediumPurple);
-        canvas.Fill(Color.Yellow);
-        canvas.Ellipse(width / 2, height / 2, 200, 200);
-        canvas.Fill(50);
-        canvas.TextSize(32);
-        canvas.TextAlign(CenterMode.Center, CenterMode.Center);
-        canvas.Text("Welcome!", width / 2, height / 2);
-
-        // Add the canvas to the engine to display it:
-        AddChild(canvas); 
-        */
-
-
     }
 
     private void Initialize()
@@ -54,10 +40,14 @@ public class MyGame : Game
 
         myCannon = new Cannon();
         AddChild(myCannon);
+
+        // Add last so it displays on top
+        AddChild(myHUD = new HUD());
     }
 
     private void MoveMyPlayer()
     {
+        // WASD for debugging purposes
         int speed = 5;
 
         if (Input.GetKey(Key.W)) { myPlayer.Move(0, -speed); }
@@ -99,7 +89,7 @@ public class MyGame : Game
 
     private void CollisionChecker()
     {
-        // I use distance instead of hittest because it is more precise
+        // I use distance instead of HitTest because it is more precise
         // Player hit enemy while not moving
 
         if (myEnemy.isAlive)
@@ -112,11 +102,14 @@ public class MyGame : Game
                 myPlayer.TakeDamage(25);
             }
 
+
             // Player hits enemy while moving
             if (myPlayer.DistanceTo(myEnemy) <= 62 && myPlayer.isMoving)
             {
+                score++;
                 myEnemy.TakeDamage(100);
             }
+
 
             // Bullet hits enemy
             foreach (Bullet bullet in Bullet.bulletList)
@@ -135,10 +128,7 @@ public class MyGame : Game
     {
         MoveMyPlayer();
         CollisionChecker();
-
-
-        Console.WriteLine(myEnemy.health);
-
+        myHUD.SetScore(score);
 
         foreach (Bullet bullet in Bullet.bulletList)
         {

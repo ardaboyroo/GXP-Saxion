@@ -40,7 +40,7 @@ namespace GXPEngine
             SetFrame(Mouse.MouseTimer() - 1);
         }
 
-        public new void Update()
+        public void Update()
         {
             CheckHealth();
             UpdateRotation();

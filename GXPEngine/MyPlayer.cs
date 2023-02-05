@@ -21,11 +21,13 @@ namespace GXPEngine
         private float slowDownTime = (float)TOTALTIME * PERCENTAGE;
         private float oldSpeed;
         private bool debounce = false;
+        private Sound explosionSFX;
 
         public MyPlayer(string Sprite, int columns, int rows, int x = 0, int y = 0) : base(Sprite, columns, rows, x, y)
         {
             playerPos.x = this.x;
             playerPos.y = this.y;
+            explosionSFX = new Sound("Assets/Explosion.wav");
         }
 
         public void Move(int stepX, int stepY)
@@ -60,6 +62,7 @@ namespace GXPEngine
             if (health <= 0)
             {
                 playerIsAlive = false;
+                explosionSFX.Play();
                 LateDestroy();
             }
         }
