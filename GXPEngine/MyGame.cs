@@ -36,6 +36,7 @@ public class MyGame : Game
 
     private void DestroyAll()
     {
+        // Destroys every game object except mouse
         List<GameObject> children = GetChildren();
         foreach (GameObject child in children)
         {
@@ -48,6 +49,7 @@ public class MyGame : Game
 
     private void Init()
     {
+        // Create the introduction displaying the highscore
         AddChild(mouse = new Mouse());  // So Mouse.Update() is called automatically
 
         // Add last so it displays on top
@@ -56,6 +58,7 @@ public class MyGame : Game
 
     private void InitializeGame()
     {
+        // Create the main game
         DestroyAll();
 
         gameStarted = true;
@@ -68,7 +71,6 @@ public class MyGame : Game
         myCannon = new Cannon();
         AddChild(myCannon);
 
-        enemyList.Clear();
         score = 0;
 
         // Add last so it displays on top
@@ -77,6 +79,7 @@ public class MyGame : Game
 
     private void InitializeRestart()
     {
+        // Create the ending screen displaying your score and the highscore
         DestroyAll();
 
         gameStarted = false;
@@ -95,42 +98,54 @@ public class MyGame : Game
 
     private void EnemySpawner()
     {
-        int pos = Utils.Random(0, 7);
-        Enemy temp;
-        switch (pos)
+        // Every 2 seconds a new enemy spawns at one of the 8 location
+
+        if (enemyTimer < 2000)
         {
-            case 1:
-                temp = new Enemy(600, 0);
-                break;
-            case 2:
-                temp = new Enemy(1200, 0);
-                break;
-            case 3:
-                temp = new Enemy(1200, 400);
-                break;
-            case 4:
-                temp = new Enemy(1200, 800);
-                break;
-            case 5:
-                temp = new Enemy(600, 800);
-                break;
-            case 6:
-                temp = new Enemy(0, 800);
-                break;
-            case 7:
-                temp = new Enemy(0, 400);
-                break;
-            default:
-                temp = new Enemy(0, 0);
-                break;
+            enemyTimer += Time.deltaTime;
         }
-        enemyList.Add(temp);
-        AddChild(temp);
+        else
+        {
+            enemyTimer = 0;
+
+            int pos = Utils.Random(0, 7);
+            Enemy temp;
+            switch (pos)
+            {
+                case 1:
+                    temp = new Enemy(600, 0);
+                    break;
+                case 2:
+                    temp = new Enemy(1200, 0);
+                    break;
+                case 3:
+                    temp = new Enemy(1200, 400);
+                    break;
+                case 4:
+                    temp = new Enemy(1200, 800);
+                    break;
+                case 5:
+                    temp = new Enemy(600, 800);
+                    break;
+                case 6:
+                    temp = new Enemy(0, 800);
+                    break;
+                case 7:
+                    temp = new Enemy(0, 400);
+                    break;
+                default:
+                    temp = new Enemy(0, 0);
+                    break;
+            }
+            enemyList.Add(temp);
+            AddChild(temp);
+        }
     }
 
     private void MoveMyPlayer()
     {
         //// WASD for debugging purposes
+        //// Not framerate independent
         //int speed = 5;
 
         //if (Input.GetKey(Key.W)) { myPlayer.Move(0, -speed); }
@@ -139,6 +154,7 @@ public class MyGame : Game
         //if (Input.GetKey(Key.D)) { myPlayer.Move(speed, 0); }
 
 
+        // When a player releases the mouse button move the player by a certain amount
         if (Input.GetMouseButtonUp(0) && level == 1)
         {
             if (!myPlayer.isMoving)     // Player won't be able to change direction while already moving
@@ -214,7 +230,7 @@ public class MyGame : Game
     // For every game object, Update is called every frame, by the engine:
     public void Update()
     {
-        Console.WriteLine(Utils.Random(0, 8));
+        // Check which scene the player should be in
         switch (scene)
         {
             case 0:     // Main menu
@@ -236,6 +252,7 @@ public class MyGame : Game
                 break;
         }
 
+        // Switch to last scene if player dies
         if (!MyPlayer.playerIsAlive)
         {
             scene = 2;
@@ -246,19 +263,12 @@ public class MyGame : Game
 
         MoveMyPlayer();
         CollisionChecker();
+        EnemySpawner();
 
-        if (enemyTimer < 2000)
-        {
-            enemyTimer += Time.deltaTime;
-        }
-        else
-        {
-            enemyTimer = 0;
-            EnemySpawner();
-        }
-
+        // Update score text
         myHUD.SetScore(score);
 
+        // AddChild the bullets from the static bulletList
         foreach (Bullet bullet in Bullet.bulletList)
         {
             // Check if the current bullet is already added
@@ -277,6 +287,7 @@ public class MyGame : Game
 
     private void DrawTiles()
     {
+        // Draw the tiles
         // Borders
         for (int j = 0; j < screenSize.y; j += 64)
         {
