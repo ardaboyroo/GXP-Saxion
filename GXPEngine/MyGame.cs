@@ -4,13 +4,21 @@ using System.Drawing;                           // System.Drawing contains drawi
 using GXPEngine.Core;
 using System.Runtime.CompilerServices;
 using System.IO; // File IO
+using System.Collections.Generic;
+using System.Collections;
+
 public class MyGame : Game
 {
     public static readonly Vector2 screenSize = new Vector2(1216, 832);
+    private bool gameStarted = false;
+    private int scene = 0;
     private int score = 0;
+    Mouse mouse;
     MyPlayer myPlayer;
     Cannon myCannon;
-    Enemy myEnemy;
+
+    private ArrayList enemyList = new ArrayList();
+    private int enemyTimer = 0;
 
     HUD myHUD;
 
@@ -20,40 +28,115 @@ public class MyGame : Game
 
     private int level = 0;
 
-    public MyGame() : base((int)screenSize.x, (int)screenSize.y, false, false)     // Create a window that's 1200x800 and NOT fullscreen, VSync = false
+    public MyGame() : base((int)screenSize.x, (int)screenSize.y, false, false)     // Create a window that's 1216x832 and NOT fullscreen, VSync = false
     {
         targetFps = 60;       // Framerate
-        Initialize();
+        Init();
     }
 
-    private void Initialize()
+    private void DestroyAll()
     {
-        AddChild(new Mouse());  // So Mouse.Update() is called automatically
+        List<GameObject> children = GetChildren();
+        foreach (GameObject child in children)
+        {
+            if (!child.Equals(mouse))
+            {
+                child.Destroy();
+            }
+        }
+    }
 
-        DrawTiles();
+    private void Init()
+    {
+        AddChild(mouse = new Mouse());  // So Mouse.Update() is called automatically
+
+        // Add last so it displays on top
+        AddChild(myHUD = new HUD(scene));
+    }
+
+    private void InitializeGame()
+    {
+        DestroyAll();
+
+        gameStarted = true;
+
+        DrawTiles();            // Add the tiles as children
 
         myPlayer = new MyPlayer("Assets/circle.png", 1, 1, 600, 400);
         AddChild(myPlayer);
 
-        myEnemy = new Enemy(0, 0, "Assets/triangle.png");
-        AddChild(myEnemy);
-
         myCannon = new Cannon();
         AddChild(myCannon);
 
+        enemyList.Clear();
+        score = 0;
+
         // Add last so it displays on top
-        AddChild(myHUD = new HUD());
+        AddChild(myHUD = new HUD(scene));
+    }
+
+    private void InitializeRestart()
+    {
+        DestroyAll();
+
+        gameStarted = false;
+        MyPlayer.playerIsAlive = true;
+
+
+        // Add last so it displays on top
+        AddChild(myHUD = new HUD(scene));
+        myHUD.SetScore(score);
+    }
+
+    private void switchClick()
+    {
+        if (Input.GetMouseButtonUp(0)) { scene = 1; }
+    }
+
+    private void EnemySpawner()
+    {
+        int pos = Utils.Random(0, 7);
+        Enemy temp;
+        switch (pos)
+        {
+            case 1:
+                temp = new Enemy(600, 0);
+                break;
+            case 2:
+                temp = new Enemy(1200, 0);
+                break;
+            case 3:
+                temp = new Enemy(1200, 400);
+                break;
+            case 4:
+                temp = new Enemy(1200, 800);
+                break;
+            case 5:
+                temp = new Enemy(600, 800);
+                break;
+            case 6:
+                temp = new Enemy(0, 800);
+                break;
+            case 7:
+                temp = new Enemy(0, 400);
+                break;
+            default:
+                temp = new Enemy(0, 0);
+                break;
+        }
+        enemyList.Add(temp);
+        AddChild(temp);
     }
 
     private void MoveMyPlayer()
     {
-        // WASD for debugging purposes
-        int speed = 5;
+        //// WASD for debugging purposes
+        //int speed = 5;
 
-        if (Input.GetKey(Key.W)) { myPlayer.Move(0, -speed); }
-        if (Input.GetKey(Key.A)) { myPlayer.Move(-speed, 0); }
-        if (Input.GetKey(Key.S)) { myPlayer.Move(0, speed); }
-        if (Input.GetKey(Key.D)) { myPlayer.Move(speed, 0); }
+        //if (Input.GetKey(Key.W)) { myPlayer.Move(0, -speed); }
+        //if (Input.GetKey(Key.A)) { myPlayer.Move(-speed, 0); }
+        //if (Input.GetKey(Key.S)) { myPlayer.Move(0, speed); }
+        //if (Input.GetKey(Key.D)) { myPlayer.Move(speed, 0); }
 
 
         if (Input.GetMouseButtonUp(0) && level == 1)
@@ -91,43 +174,89 @@ public class MyGame : Game
     {
         // I use distance instead of HitTest because it is more precise
         // Player hit enemy while not moving
-
-        if (myEnemy.isAlive)
+        foreach (Enemy i in enemyList)
         {
-            // Player hits enemy while not moving
-            if (myPlayer.DistanceTo(myEnemy) <= 62 && !myPlayer.isMoving)
+            if (i.isAlive)
             {
-                myPlayer.CalculateKnockback(myEnemy.x, myEnemy.y, 125, false);
-                myEnemy.CalculateKnockback(myPlayer.x, myPlayer.y, 20);
-                myPlayer.TakeDamage(25);
-            }
-
-
-            // Player hits enemy while moving
-            if (myPlayer.DistanceTo(myEnemy) <= 62 && myPlayer.isMoving)
-            {
-                score++;
-                myEnemy.TakeDamage(100);
-            }
-
-
-            // Bullet hits enemy
-            foreach (Bullet bullet in Bullet.bulletList)
-            {
-                if (bullet.HitTest(myEnemy) && !bullet.hasHit)
+                // Player hits enemy while not moving
+                if (myPlayer.DistanceTo(i) <= 62 && !myPlayer.isMoving)
                 {
-                    myEnemy.TakeDamage(25);
-                    bullet.hasHit = true;
+                    myPlayer.CalculateKnockback(i.x, i.y, 125, false);
+                    i.CalculateKnockback(myPlayer.x, myPlayer.y, 20);
+                    myPlayer.TakeDamage(25);
+                }
+
+
+                // Player hits enemy while moving
+                if (myPlayer.DistanceTo(i) <= 62 && myPlayer.isMoving)
+                {
+                    score++;
+                    i.TakeDamage(100);
+                }
+
+
+                // Bullet hits enemy
+                foreach (Bullet bullet in Bullet.bulletList)
+                {
+                    if (bullet.HitTest(i) && !bullet.hasHit)
+                    {
+                        i.TakeDamage(25);
+                        bullet.hasHit = true;
+                    }
                 }
             }
         }
+
+
+
     }
 
     // For every game object, Update is called every frame, by the engine:
     public void Update()
     {
+        Console.WriteLine(Utils.Random(0, 8));
+        switch (scene)
+        {
+            case 0:     // Main menu
+                switchClick();
+                return;
+            case 1:     // Game
+                if (!gameStarted)
+                {
+                    InitializeGame();
+                }
+                break;
+            case 2:     // Restart screen
+                if (gameStarted)
+                {
+                    myHUD.SetHighScore(score);
+                    InitializeRestart();
+                }
+                switchClick();
+                break;
+        }
+
+        if (!MyPlayer.playerIsAlive)
+        {
+            scene = 2;
+        }
+
+        // Only continue the function if game has started
+        if (!gameStarted) { return; }
+
         MoveMyPlayer();
         CollisionChecker();
+
+        if (enemyTimer < 2000)
+        {
+            enemyTimer += Time.deltaTime;
+        }
+        else
+        {
+            enemyTimer = 0;
+            EnemySpawner();
+        }
+
         myHUD.SetScore(score);
 
         foreach (Bullet bullet in Bullet.bulletList)
@@ -142,24 +271,6 @@ public class MyGame : Game
 
     static void Main()                          // Main() is the first method that's called when the program is run
     {
-        /*
-        StreamWriter writer = new StreamWriter("myFile.txt");
-
-        
-        Console.WriteLine("Please enter a number");
-        string input = Console.ReadLine();
-        int number = int.Parse(input); // this may give an exception!
-
-        writer.WriteLine((number * 2).ToString());
-        writer.Close();
-        
-        StreamReader reader = new StreamReader("myFile.txt");
-        string input2 = reader.ReadLine();
-        int readNum = int.Parse(input2); // may give exception
-        Console.WriteLine("I read this number: "+readNum);
-        Console.ReadKey();
-        reader.Close();
-        */
         MyGame mygame = new MyGame();                   // Create a "MyGame" and start it
         mygame.Start();
     }

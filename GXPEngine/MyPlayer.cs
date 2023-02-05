@@ -22,6 +22,7 @@ namespace GXPEngine
         private float oldSpeed;
         private bool debounce = false;
         private Sound explosionSFX;
+        public static bool playerIsAlive = true;
 
         public MyPlayer(string Sprite, int columns, int rows, int x = 0, int y = 0) : base(Sprite, columns, rows, x, y)
         {
